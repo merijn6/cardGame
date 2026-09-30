@@ -1,0 +1,130 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+public class Deck {
+    ArrayList<Card> mainStack = new ArrayList<>();
+    ArrayList<Card> discardStack = new ArrayList<>();
+    ArrayList<ArrayList<Card>> hands = new ArrayList<>();
+
+    Deck(Integer amountHands, Integer handSize, Integer jesters) {
+        for (CardShape shape : CardShape.values()) {
+            if (shape == CardShape.NONE) {
+                continue;
+            }
+
+            for (CardValue value : CardValue.values()) {
+                if (value == CardValue.JESTER) {
+                    continue;
+                }
+
+                this.mainStack.add(new Card(shape, value));
+            }
+        }
+
+        if (jesters > 0) {
+            for (int index = 0; index < jesters; index++) {
+                this.mainStack.add(new Card(CardShape.NONE, CardValue.JESTER));
+            }
+        }
+
+        this.shuffle();
+        this.deal(amountHands, handSize);
+    }
+
+    public void discardCardFromMain(){
+        if(this.cardsSize() != 0){
+            System.out.println("No more cards on the mainstack.");
+
+            if(this.refillCards()){
+                this.discardCardFromMain();
+
+            }else{
+                System.out.println("Discard stack is empty, can't refill and deal to main.");
+            }
+        }else{
+
+        }
+    }
+
+    public void shuffle() {
+        Collections.shuffle(this.mainStack);
+    }
+
+    public Integer cardsSize() {
+        return this.mainStack.size();
+    }
+
+    private void addHand() {
+        this.hands.add(new ArrayList<>());
+    }
+
+    private void deal(int hands, int handSize) {
+        for (int index = 0; index < hands; index++) {
+            this.addHand();
+            this.drawCards(index, handSize);
+        }
+    }
+
+    private boolean refillCards() {
+        if (this.discardStack.isEmpty()) {
+            System.out.println("No more cards to add the main stack");
+            return false;
+        }
+
+        List<Card> cardsToAdd =  this.discardStack.subList(1, this.discardStack.size() - 1);
+        this.mainStack.addAll(cardsToAdd);
+        cardsToAdd.clear();
+
+        this.shuffle();
+        return true;
+    }
+
+    public void drawCards(int handIndex, int amountOfCards) {
+        if (this.mainStack.size() >= amountOfCards) {
+            int lastCardsIndex = cardsSize() - 1;
+
+            List<Card> cards = this.mainStack.subList((lastCardsIndex - amountOfCards), lastCardsIndex);
+
+            this.hands.get(handIndex).addAll(cards);
+            cards.clear();
+
+        } else {
+            if (!this.refillCards()) {
+                return;
+            }
+            this.drawCards(handIndex, amountOfCards);
+        }
+    }
+
+    public boolean playCard(int handIndex, int cardIndex) {
+        ArrayList<Card> hand = this.hands.get(handIndex);
+        Card card = hand.get(cardIndex);
+        Match match = card.matches(this.discardStack.getLast());
+
+        if (match.getMatchInt() != 0) {
+            this.discardStack.add(card);
+            hand.remove(cardIndex);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public ArrayList<Card> getHand(int handIndex) {
+        return this.hands.get(handIndex);
+    }
+
+    public void showHand(int handIndex) {
+        ArrayList<Card> hand = this.hands.get(handIndex);
+        System.out.println("\n");
+
+        for (Card card : hand) {
+            System.out.print(card.getName() + "  ");
+        }
+
+        System.out.print("\n");
+    }
+}
