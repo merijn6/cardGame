@@ -1,4 +1,6 @@
 void main() {
-    BlackJack newGame = new BlackJack();
-    newGame.play();
+    Pesten newGame = new Pesten();
+
+//    BlackJack newGame = new BlackJack();
+//    newGame.play();
 }

@@ -33,18 +33,22 @@ public class Deck {
         this.deal(amountHands, handSize);
     }
 
-    public void discardCardFromMain(){
-        if(this.cardsSize() != 0){
+    public void playCardFromMain() {
+        int firstCardIndex = 0;
+
+        if (this.cardsSize() == 0) {
             System.out.println("No more cards on the mainstack.");
 
-            if(this.refillCards()){
-                this.discardCardFromMain();
+            if (this.refillCards()) {
+                this.playCardFromMain();
 
-            }else{
+            } else {
                 System.out.println("Discard stack is empty, can't refill and deal to main.");
             }
-        }else{
-
+        } else {
+            Card firstCard = this.mainStack.getFirst();
+            this.discardStack.add(firstCard);
+            this.mainStack.removeFirst();
         }
     }
 
@@ -69,11 +73,11 @@ public class Deck {
 
     private boolean refillCards() {
         if (this.discardStack.isEmpty()) {
-            System.out.println("No more cards to add the main stack");
+            System.out.println("No more cards to add the mainstack");
             return false;
         }
 
-        List<Card> cardsToAdd =  this.discardStack.subList(1, this.discardStack.size() - 1);
+        List<Card> cardsToAdd = this.discardStack.subList(1, this.discardStack.size() - 1);
         this.mainStack.addAll(cardsToAdd);
         cardsToAdd.clear();
 
@@ -98,16 +102,15 @@ public class Deck {
         }
     }
 
-    public boolean playCard(int handIndex, int cardIndex) {
-        ArrayList<Card> hand = this.hands.get(handIndex);
-        Card card = hand.get(cardIndex);
+    public boolean playCard(ArrayList<Card> cardsStack, int cardIndex) {
+        Card card = cardsStack.get(cardIndex);
         Match match = card.matches(this.discardStack.getLast());
 
         if (match.getMatchInt() != 0) {
             this.discardStack.add(card);
-            hand.remove(cardIndex);
-
+            cardsStack.remove(cardIndex);
             return true;
+
         } else {
             return false;
         }
@@ -126,5 +129,27 @@ public class Deck {
         }
 
         System.out.print("\n");
+    }
+
+    public Card getMainCard(){
+        int firstCardIndex = 0;
+
+        if (this.mainStack.isEmpty()){
+            System.out.println("Main didn't have any cards left");
+
+            if(!this.refillCards()) {
+                return null;
+            }
+            this.getMainCard();
+        }
+
+        return this.mainStack.get(firstCardIndex);
+    }
+
+    public List<Card> playableCards(int handIndex){
+        Card mainCard = this.getMainCard();
+        ArrayList<Card> hand = this.getHand(handIndex);
+
+        return hand.stream().filter( card -> mainCard.matches(card) != Match.NOT).toList();
     }
 }
