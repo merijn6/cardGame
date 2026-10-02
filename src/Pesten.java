@@ -1,12 +1,12 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+    import java.util.Scanner;
 
 
 public class Pesten {
     private Deck deck;
     private boolean playsClockwise = true;
     private final Integer playerIndex = 1;
+
+    public CardShape changedCardShape;
     public Integer hasToDraw = 0;
     public Boolean hasToSkip = false;
 
@@ -15,8 +15,6 @@ public class Pesten {
         this.deck.playCardFromMain();
 
         System.out.println(this.deck.getMainCard().getName());
-
-        List<Card> playableCards = this.deck.playableCards(1);
     }
 
     public void playerTurn(){
@@ -26,15 +24,18 @@ public class Pesten {
         System.out.println("What card do you want to play?");
     }
 
-    public void AttemptToPlayCard(Integer cardIndex){
+    // This function is meant for the player only
+    public void attemptToPlayCard(Integer cardIndex){
         Card card = this.deck.getHand(this.playerIndex).get(cardIndex);
         Match match = this.deck.matches(card);
-        Scanner scanner = new Scanner(System.in);
+
 
         if(match != Match.NOT && match != Match.COLOR){
+            this.deck.playCard(this.deck.getHand(this.playerIndex), cardIndex);
+
             switch (card.getCardValue().getSymbol()){
                 case "J":
-                    scanner
+                    this.setNewShape();
                     break;
 
                 case "A":
@@ -46,6 +47,7 @@ public class Pesten {
                     break;
 
                 case "7":
+                    this.attemptToPlayCard(cardIndex);
                     break;
 
                 case "8":
@@ -56,14 +58,41 @@ public class Pesten {
                     this.hasToDraw += 5;
                     break;
             }
-        }else{
-            if(this.hasToDraw != 0 && pestCard.contains(CardValue.ACE)){
-
-            }
+//        }else{
+//            }
         }
-
     }
 
+    public void setNewShape(){
+        System.out.println("What shape do you want to change into? Spades, diamonds, hearths or clovers.");
+        Scanner scanner = new Scanner(System.in);
+        String newShape = scanner.next();
+
+        switch (newShape){
+            case "spades":
+                this.changedCardShape = CardShape.SPADE;
+                break;
+
+            case "diamonds":
+                this.changedCardShape = CardShape.DIAMOND;
+                break;
+
+            case "hearts":
+                this.changedCardShape = CardShape.HEART;
+                break;
+
+            case "clovers":
+                this.changedCardShape = CardShape.CLOVER;
+                break;
+
+            default:
+                System.out.println("Non valid shape given. Please try again.");
+                this.setNewShape();
+                break;
+        }
+    }
+
+}
 
     // 2 is the next player draws 2 extra cards
     // 7 is the player gets to play once again
@@ -71,4 +100,4 @@ public class Pesten {
     // Jester the next player has to draw 5 but can choose the symbol
     // Ace player rotates the direction the game gets played in, if there are only 2 players he gets to play again
     // Jack choose a symbol of choice
-}
+

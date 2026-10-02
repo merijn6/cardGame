@@ -1,6 +1,6 @@
 enum CardShape {
     DIAMOND("red", "♦"),
-    HEARTH("red", "♥"),
+    HEART("red", "♥"),
     SPADE("black", "♠"),
     CLOVER("black", "♣"),
     NONE("", "");
