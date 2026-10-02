@@ -132,24 +132,41 @@ public class Deck {
     }
 
     public Card getMainCard(){
-        int firstCardIndex = 0;
 
-        if (this.mainStack.isEmpty()){
-            System.out.println("Main didn't have any cards left");
-
-            if(!this.refillCards()) {
-                return null;
-            }
-            this.getMainCard();
+        if (this.discardStack.isEmpty()) {
+            System.out.println("The discard stack didn't have any cards left");
+            return null;
         }
 
-        return this.mainStack.get(firstCardIndex);
+        return this.discardStack.getFirst();
     }
 
-    public List<Card> playableCards(int handIndex){
+    public List<Card> playableCards(int handIndex, ArrayList<Match> hasToMatch){
         Card mainCard = this.getMainCard();
         ArrayList<Card> hand = this.getHand(handIndex);
 
-        return hand.stream().filter( card -> mainCard.matches(card) != Match.NOT).toList();
+        return hand.stream().filter( card -> hasToMatch.contains(this.matches(card))).toList();
     }
+
+    public Match matches(Card playedCard){
+        Card mainCard = this.getMainCard();
+
+        if(mainCard == null){
+            return Match.NOT;
+        }
+
+        if (mainCard.getCardValue().getValue().equals(playedCard.getCardValue().getValue())) {
+            return Match.VALUE;
+
+        } else if (mainCard.getCardShape() == playedCard.getCardShape()) {
+            return Match.SHAPE;
+
+        } else if (mainCard.getCardShape().getColor().equals(playedCard.getCardShape().getColor())) {
+            return Match.COLOR;
+
+        } else {
+            return Match.NOT;
+        }
+    }
+
 }
